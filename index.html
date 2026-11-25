@@ -196,6 +196,15 @@ footer a{color:inherit;text-decoration:none;transition:color .3s var(--ease)}foo
 }
 @media(prefers-reduced-motion:reduce){*,::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important;transition:none!important}.track{scroll-behavior:auto}}
 </style>
+<script>
+/* GoatCounter — only counts on the live site, not in previews */
+window.gcQ=[];
+if(/(^|\.)shetharchives\.com$/.test(location.hostname)){
+ const s=document.createElement('script');s.async=true;s.dataset.goatcounter='https://shetharchives.goatcounter.com/count';s.src='//gc.zgo.at/count.js';
+ s.onload=()=>{const q=gcQ;gcQ=[];q.forEach(f=>f())};document.head.appendChild(s);
+}
+function gc(path,title,event){if(!/(^|\.)shetharchives\.com$/.test(location.hostname))return;const f=()=>window.goatcounter.count({path,title,event:!!event});(window.goatcounter&&goatcounter.count)?f():gcQ.push(f)}
+</script>
 </head>
 <body>
 <header class="top wrap"><div class="grid12">
@@ -320,18 +329,19 @@ function open(id,from){
  const src=from&&from.querySelector('.t');if(src)src.style.viewTransitionName='rtitle';
  const t=vt(()=>{if(src)src.style.viewTransitionName='';cur=r;const pg=$('#page');pg.innerHTML=pageHTML(r);pg.classList.add('on');pg.scrollTop=0;$('#fab').classList.remove('on');document.body.style.overflow='hidden';bind(r)});
  if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);
+ gc('/recipes-by-request/'+id,r.title);
 }
 function close(){
  if(!cur)return;const id=cur.id;const tgt=document.querySelector(`[data-id="${id}"] .t`);
  vt(()=>{$('#page').classList.remove('on');$('#page').innerHTML='';document.body.style.overflow='';cur=null;if(tgt){tgt.style.viewTransitionName='rtitle';tgt.scrollIntoView({block:'center'})}})?.finished.then(()=>{if(tgt)tgt.style.viewTransitionName=''});
  history.replaceState(null,'',location.pathname+location.search);
 }
-function swap(id){const r=byId[id];if(!r)return;vt(()=>{cur=r;$('#page').innerHTML=pageHTML(r);$('#page').scrollTop=0;bind(r)});history.replaceState(null,'','#'+id)}
+function swap(id){const r=byId[id];if(!r)return;vt(()=>{cur=r;$('#page').innerHTML=pageHTML(r);$('#page').scrollTop=0;bind(r)});history.replaceState(null,'','#'+id);gc('/recipes-by-request/'+id,r.title)}
 function bind(r){
  const [p,nx]=neighbours(r);
  $('#pBack').onclick=close;$('#pPrev').onclick=()=>p&&swap(p.id);$('#pNext').onclick=()=>nx&&swap(nx.id);
  $('#page').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>swap(b.dataset.go));
- $('#bCook').onclick=()=>cook(r);$('#bPdf').onclick=()=>pdf(r);
+ $('#bCook').onclick=()=>{gc('cooking-mode/'+r.id,'Cooking mode: '+r.title,1);cook(r)};$('#bPdf').onclick=()=>{gc('pdf/'+r.id,'PDF: '+r.title,1);pdf(r)};
  $('#bLink').onclick=async()=>{try{await navigator.clipboard.writeText(location.href.split('#')[0]+'#'+r.id);toast('Link copied')}catch(e){toast('Copying isn’t allowed here')}};
 }
 
