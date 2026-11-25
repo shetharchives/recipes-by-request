@@ -55,6 +55,9 @@ a{color:inherit}
 .views button{color:var(--mute)}.views button[aria-pressed=true]{color:var(--ink)}
 .cnt{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
 .clr{font-size:13px;color:var(--mute);text-decoration:underline;text-underline-offset:3px}
+/* back to top */
+.fab{position:fixed;right:max(var(--m),env(safe-area-inset-right));bottom:calc(22px + env(safe-area-inset-bottom));z-index:35;width:48px;height:48px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:18px;display:grid;place-items:center;opacity:0;transform:translateY(16px);pointer-events:none;transition:opacity .4s var(--ease),transform .4s var(--ease);box-shadow:0 10px 30px -12px rgba(0,0,0,.45)}
+.fab.on{opacity:1;transform:none;pointer-events:auto}
 /* index */
 .idx{padding-bottom:120px}
 .vh{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);padding:72px 0 16px;border-bottom:1px solid var(--ink)}
@@ -209,6 +212,7 @@ footer .grid12>*{grid-column:span 6}footer .r{text-align:right}
  <div class="track" id="track"></div>
  <div class="cnav"><button id="cPrev">← Back</button><span id="cPos"></span><button id="cNext">Next →</button></div>
 </div>
+<button class="fab" id="fab" aria-label="Back to top">↑</button>
 <div class="toast" id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -248,7 +252,7 @@ function renderOut(animate){
  let k=0;const an=i=>animate&&i<28?` reveal" style="animation-delay:${i*28}ms`:'';
  if(view==='list'){
   const groups=[1,2,3].map(v=>[v,shown.filter(r=>r.vol===v)]).filter(g=>g[1].length);
-  o.innerHTML=groups.map(([v,rs])=>`<div class="vh"><h2>${VOLS[v]}</h2><span>${YEARS[v]} · ${rs.length} recipes</span></div><div class="list">`+
+  o.innerHTML=groups.map(([v,rs])=>`<div class="vh" id="vol${v}"><h2>${VOLS[v]}</h2><span>${YEARS[v]} · ${rs.length} recipes</span></div><div class="list">`+
    rs.map(r=>`<button class="row${an(k++)}" data-id="${r.id}"><span class="n">${pad(r.n)}</span><span class="t">${r.star?'★ ':''}${esc(r.title)}</span><span class="d">${esc(r.type)}</span><span class="c">${esc(r.cuisine)}</span><span class="s">${esc(r.attr.replace(/^\(|\)$/g,''))}</span></button>`).join('')+'</div>').join('');
  }else{
   // rhythm: wide card every 7th, tall card every 5th — an index that breathes
@@ -291,7 +295,7 @@ function pageHTML(r){const [p,nx]=neighbours(r);
 function open(id,from){
  const r=byId[id];if(!r)return;
  const src=from&&from.querySelector('.t');if(src)src.style.viewTransitionName='rtitle';
- const t=vt(()=>{if(src)src.style.viewTransitionName='';cur=r;const pg=$('#page');pg.innerHTML=pageHTML(r);pg.classList.add('on');pg.scrollTop=0;document.body.style.overflow='hidden';bind(r)});
+ const t=vt(()=>{if(src)src.style.viewTransitionName='';cur=r;const pg=$('#page');pg.innerHTML=pageHTML(r);pg.classList.add('on');pg.scrollTop=0;$('#fab').classList.remove('on');document.body.style.overflow='hidden';bind(r)});
  if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);
 }
 function close(){
@@ -392,6 +396,9 @@ const toIndex=()=>{if(cur)close();setTimeout(()=>$('#index').scrollIntoView({beh
 $('#nIdx').onclick=toIndex;$('#home').onclick=()=>{if(cur)close();window.scrollTo({top:0,behavior:reduce()?'auto':'smooth'})};
 $('#nVol').onclick=()=>{st.vol=st.vol?(st.vol%3)+1:1;vt(()=>render(false));toIndex()};
 $('#nAbout').onclick=()=>{if(cur)close();setTimeout(()=>$('#about').scrollIntoView({behavior:reduce()?'auto':'smooth'}),cur?600:0)};
+$('#fab').onclick=()=>{const b=reduce()?'auto':'smooth';cur?$('#page').scrollTo({top:0,behavior:b}):window.scrollTo({top:0,behavior:b})};
+let fabT=0;const fabUpd=()=>{if(!fabT)fabT=requestAnimationFrame(()=>{fabT=0;const y=cur?$('#page').scrollTop:scrollY;$('#fab').classList.toggle('on',y>innerHeight*1.2)})};
+addEventListener('scroll',fabUpd,{passive:true});$('#page').addEventListener('scroll',fabUpd,{passive:true});
 $('#toTop').onclick=()=>window.scrollTo({top:0,behavior:reduce()?'auto':'smooth'});
 window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h&&byId[h]&&(!cur||cur.id!==h))cur?swap(h):open(h)});
 
