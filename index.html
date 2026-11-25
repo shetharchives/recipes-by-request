@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Recipes by Request</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a quiet studio archive — unhurried, exact, generous with air.
+   IDEA: the book's index page: numbered hairline entries you can flip to a card grid, one entry opening into a full page.
+   PICTURE: the index itself, set large; each recipe page reads like a spread — meta in the margin, text in the field.
+   COLOUR and TYPE: warm paper #f6f6f4, near-black ink, grey for apparatus; Inter Tight light for display, regular for text.
+   LAYOUT: 12-column field with wide margins; header, statement, controls, index; recipe opens over it with a view transition. */
+:root{color-scheme:light dark;
+ --bg:light-dark(#f6f6f4,#121211);--paper:light-dark(#fbfbf9,#191918);--ink:light-dark(#151514,#ecebe6);
+ --mute:light-dark(#8b8a84,#8a8983);--line:light-dark(#dcdbd5,#2c2c2a);--hi:light-dark(#ebeae5,#232321);
+ --m:clamp(20px,4.2vw,64px);--g:clamp(14px,1.6vw,24px);--ease:cubic-bezier(.2,.7,.1,1)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 "Inter Tight",-apple-system,"Helvetica Neue",Arial,sans-serif;overflow-x:clip;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit;background:none;border:0;padding:0}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:1px solid var(--ink);outline-offset:4px}
+.wrap{padding-inline:var(--m)}
+.grid12{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g)}
+.lab{font-size:12px;color:var(--mute);letter-spacing:.01em}
+/* header */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.top .grid12{height:64px;align-items:center}
+.mark{grid-column:1/7;text-align:left;justify-self:start;white-space:nowrap;font-weight:500;font-size:14px;letter-spacing:-.01em}
+.nav{grid-column:7/13;display:flex;justify-content:flex-end;gap:clamp(16px,3vw,40px);font-size:13px}
+.nav button{color:var(--mute);transition:color .3s}.nav button:hover,.nav button[aria-current=true]{color:var(--ink)}
+/* statement */
+.hero{padding-block:clamp(56px,13vh,150px) clamp(48px,9vh,110px)}
+.hero h1{grid-column:1/11;margin:0;font-weight:300;font-size:clamp(30px,5.1vw,76px);line-height:1.06;letter-spacing:-.035em;text-wrap:balance}
+.hero .by{grid-column:1/13;margin-top:28px;display:flex;flex-wrap:wrap;gap:6px 48px}
+.hero .by span{font-size:13px}
+.hero .by i{font-style:normal;color:var(--mute);margin-right:10px}
+/* controls */
+.ctrl{border-top:1px solid var(--line);padding-block:22px 10px;row-gap:16px}
+.fl{grid-column:span 4;}.fl:nth-child(1){grid-column:span 3}.fl:nth-child(3){grid-column:span 5}.fl{display:flex;flex-direction:column;gap:8px}
+.fl .opts{display:flex;flex-wrap:wrap;gap:4px 16px}
+.opt{font-size:14px;color:var(--mute);transition:color .25s;min-height:28px;text-align:left}
+.opt sup{font-size:9px;margin-left:2px}
+.opt:hover{color:var(--ink)}.opt[aria-pressed=true]{color:var(--ink);text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:1px}
+.opt:disabled{opacity:.35;cursor:default}
+.bar{grid-column:1/13;display:flex;flex-wrap:wrap;align-items:end;gap:14px 32px;padding-top:26px}
+.bar .q{flex:1 1 280px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.bar .q input{flex:1;font-size:16px;height:36px;outline:0}
+.bar .q input::placeholder{color:var(--mute)}
+.views{display:flex;gap:16px;font-size:13px}
+.views button{color:var(--mute)}.views button[aria-pressed=true]{color:var(--ink)}
+.cnt{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+.clr{font-size:13px;color:var(--mute);text-decoration:underline;text-underline-offset:3px}
+/* index */
+.idx{padding-bottom:120px}
+.vh{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);padding:72px 0 16px;border-bottom:1px solid var(--ink)}
+.vh h2{grid-column:1/9;margin:0;font-weight:300;font-size:clamp(26px,3.2vw,44px);letter-spacing:-.03em;line-height:1.1}
+.vh span{grid-column:9/13;align-self:end;text-align:right;font-size:13px;color:var(--mute)}
+.row{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--g);width:100%;text-align:left;padding:15px 0;border-bottom:1px solid var(--line);align-items:baseline;position:relative}
+.row .n{grid-column:1/2;font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+.row .t{grid-column:2/7;font-size:16px;letter-spacing:-.005em;transition:transform .45s var(--ease)}
+.row .d{grid-column:7/9;font-size:13px;color:var(--mute)}
+.row .c{grid-column:9/11;font-size:13px;color:var(--mute)}
+.row .s{grid-column:11/13;font-size:12px;color:var(--mute);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row::after{content:"";position:absolute;inset:0 calc(var(--m) * -1);background:var(--hi);opacity:0;transition:opacity .35s;z-index:-1}
+@media(hover:hover){.row:hover::after{opacity:1}.row:hover .t{transform:translateX(10px)}
+ .list:has(.row:hover) .row:not(:hover) .t{color:var(--mute)}}
+.list .row .t{transition:transform .45s var(--ease),color .35s}
+/* grid view */
+.cards{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:calc(var(--g) * 1.4) var(--g);padding-top:40px}
+.card{grid-column:span 3;text-align:left;display:flex;flex-direction:column;background:var(--paper);border-radius:2px;padding:20px 20px 18px;min-height:300px;transition:transform .6s var(--ease),box-shadow .6s var(--ease);position:relative;overflow:hidden}
+.card.w{grid-column:span 6}.card.t{min-height:420px}
+.card .n{font-size:12px;color:var(--mute);display:flex;justify-content:space-between}
+.card .t{font-size:clamp(19px,1.7vw,26px);font-weight:300;letter-spacing:-.02em;line-height:1.12;margin:14px 0 auto;text-wrap:balance}
+.card.w .t{font-size:clamp(24px,2.6vw,40px)}
+.card .x{font-size:12px;color:var(--mute);line-height:1.55;margin-top:22px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.card .m{font-size:12px;color:var(--mute);margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
+@media(hover:hover){.card:hover{transform:translateY(-6px);box-shadow:0 24px 50px -30px rgba(0,0,0,.35)}}
+.empty{padding:90px 0;color:var(--mute);font-size:18px;font-weight:300}
+.reveal{animation:rise .8s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+/* recipe page */
+.page{position:fixed;inset:0;z-index:30;background:var(--bg);overflow-y:auto;display:none}
+.page.on{display:block}
+.ptop{position:sticky;top:0;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:2}
+.ptop .grid12{height:64px;align-items:center}
+.ptop .bk{grid-column:1/5;font-size:13px;text-align:left}
+.ptop .bc{grid-column:5/10;font-size:12px;color:var(--mute)}
+.ptop .pn{grid-column:10/13;display:flex;justify-content:flex-end;gap:22px;font-size:13px}
+.ptop .pn button{color:var(--mute)}.ptop .pn button:hover{color:var(--ink)}
+.spread{padding-block:clamp(40px,9vh,110px) 140px;row-gap:48px}
+.side{grid-column:1/4;position:sticky;top:96px;align-self:start;display:grid;gap:18px}
+.side dl{margin:0;display:grid;gap:14px}
+.side dt{font-size:12px;color:var(--mute)}.side dd{margin:2px 0 0;font-size:14px}
+.acts{display:grid;gap:8px;margin-top:10px}
+.act{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:12px 0 4px;font-size:14px;text-align:left;min-height:44px;transition:padding .35s var(--ease)}
+.act:hover{padding-left:6px}.act span{color:var(--mute)}
+.act.pri{border-top-color:var(--ink)}
+.main{grid-column:5/13}
+.main h1{margin:0 0 18px;font-weight:300;font-size:clamp(34px,5.4vw,84px);line-height:1.02;letter-spacing:-.04em;text-wrap:balance}
+.main .attr{font-size:14px;color:var(--mute);margin-bottom:36px}
+.body{max-width:980px;font-size:16px;line-height:1.7}
+.body p{margin:0 0 16px;max-width:68ch}
+.body .q{font-size:clamp(18px,1.6vw,22px);font-weight:300;font-style:italic;line-height:1.5;color:var(--ink);margin:8px 0 40px;max-width:52ch}
+.body h3{font-size:12px;font-weight:400;color:var(--mute);margin:44px 0 10px;letter-spacing:.02em}
+.body .note{font-size:14px;color:var(--mute);border-left:1px solid var(--line);padding-left:16px}
+.body .note b{font-weight:500;color:var(--ink);margin-right:8px}
+.steps{border-top:1px solid var(--ink);margin:0 0 28px}
+.step{display:grid;grid-template-columns:40px minmax(0,3fr) minmax(0,5fr);gap:var(--g);padding:18px 0;border-bottom:1px solid var(--line)}
+.step>i{font-style:normal;font-size:12px;color:var(--mute);padding-top:4px;font-variant-numeric:tabular-nums}
+.step ul,.ings{margin:0;padding:0;list-style:none}
+.step li{font-size:14px;line-height:1.6}
+.ings{columns:2 240px;column-gap:var(--g);border-top:1px solid var(--ink);padding-top:14px;margin:0 0 28px}
+.ings li{break-inside:avoid;padding:6px 0;border-bottom:1px solid var(--line);font-size:15px}
+.tbl{overflow-x:auto;margin:0 0 28px}
+.tbl table{border-collapse:collapse;font-size:13px;width:100%;border-top:1px solid var(--ink)}
+.tbl td{border-bottom:1px solid var(--line);padding:10px 12px 10px 0;vertical-align:top}
+.tbl tr:first-child td{color:var(--mute)}
+.end{margin-top:80px;border-top:1px solid var(--line);padding-top:20px;display:flex;justify-content:space-between;gap:20px;font-size:13px;color:var(--mute)}
+.end button{text-align:left}.end button:last-child{text-align:right}
+.end b{display:block;color:var(--ink);font-weight:300;font-size:clamp(18px,2vw,26px);letter-spacing:-.02em}
+/* about */
+.about{padding-block:110px;border-top:1px solid var(--line)}
+.about h2{grid-column:1/4;margin:0;font-weight:400;font-size:13px;color:var(--mute)}
+.about .tx{grid-column:4/11;font-size:clamp(18px,1.7vw,24px);font-weight:300;line-height:1.5;letter-spacing:-.01em}
+.about .tx p{margin:0 0 22px}
+footer{padding-block:28px 40px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
+footer .grid12>*{grid-column:span 6}footer .r{text-align:right}
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,10px);background:var(--ink);color:var(--bg);padding:10px 16px;font-size:13px;opacity:0;transition:.35s var(--ease);pointer-events:none;z-index:60}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+/* cooking mode */
+.cook{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column}
+.cook.on{display:flex;animation:fade .5s var(--ease)}
+@keyframes fade{from{opacity:0}}
+.ctop{display:flex;align-items:center;gap:20px;padding:0 var(--m);height:64px;font-size:13px}
+.ctop b{flex:1;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctop button{color:var(--mute);min-height:44px;min-width:32px}.ctop button:hover{color:var(--ink)}
+.prog{height:1px;background:var(--line);margin-inline:var(--m)}.prog i{display:block;height:1px;background:var(--ink);transition:width .5s var(--ease)}
+.track{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;scroll-behavior:smooth}
+.track::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:start;overflow-y:auto;padding:clamp(32px,7vh,80px) var(--m)}
+.slide .sl{font-size:12px;color:var(--mute);margin-bottom:26px}
+.slide .ci{list-style:none;margin:0 0 34px;padding:0;max-width:760px;font-size:calc(17px * var(--cs,1))}
+.slide .ci li{padding:8px 0;border-bottom:1px solid var(--line);color:var(--mute)}
+.slide .check li{color:var(--ink);cursor:pointer;transition:color .3s}
+.slide .check li.done{color:var(--mute);text-decoration:line-through}
+.slide .ct{font-size:calc(clamp(24px,3.4vw,44px) * var(--cs,1));font-weight:300;line-height:1.3;letter-spacing:-.02em;max-width:24em;margin:0 0 20px}
+.slide .cq{font-size:calc(19px * var(--cs,1));font-weight:300;font-style:italic;max-width:40em;margin:0 0 30px}
+.cnav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px var(--m) calc(20px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.cnav button{font-size:clamp(16px,2vw,20px);min-height:56px;text-align:left}.cnav button:last-child{text-align:right}
+.cnav button:disabled{opacity:.3}
+.cnav span{font-size:13px;color:var(--mute);font-variant-numeric:tabular-nums}
+/* transitions */
+::view-transition-old(root),::view-transition-new(root){animation-duration:.55s;animation-timing-function:cubic-bezier(.2,.7,.1,1)}
+::view-transition-group(rtitle){animation-duration:.6s;animation-timing-function:cubic-bezier(.2,.7,.1,1)}
+@media(max-width:1000px){.card{grid-column:span 6}.card.w{grid-column:span 12}.fl,.fl:nth-child(1),.fl:nth-child(3){grid-column:span 12}}
+@media(max-width:760px){
+ .nav .hide{display:none}
+ .hero h1{grid-column:1/13}
+ .row .n{grid-column:1/3}.row .t{grid-column:3/13}.row .d,.row .c{grid-row:2;font-size:12px}.row .d{grid-column:3/8}.row .c{grid-column:8/13;text-align:right}.row .s{display:none}
+ .card,.card.w{grid-column:span 12;min-height:220px}.card.t{min-height:260px}
+ .side{grid-column:1/13;position:static;order:2}.main{grid-column:1/13}
+ .ptop .bc{display:none}.ptop .bk{grid-column:1/7}.ptop .pn{grid-column:7/13}
+ .step{grid-template-columns:28px minmax(0,1fr)}.step>div{grid-column:2}
+ .about h2,.about .tx{grid-column:1/13}.about h2{margin-bottom:18px}
+ footer .grid12>*{grid-column:span 12}footer .r{text-align:left}
+}
+@media(prefers-reduced-motion:reduce){*,::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important;transition:none!important}.track{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top wrap"><div class="grid12">
+ <button class="mark" id="home">Recipes by Request</button>
+ <nav class="nav"><button id="nIdx" aria-current="true">Index</button><button id="nVol" class="hide">Volumes</button><button id="nAbout">About</button></nav>
+</div></header>
+
+<section class="hero wrap"><div class="grid12">
+ <h1>“This book really does not need an introduction. All I want to say to anyone caring enough to be reading this is - ENJOY!”</h1>
+ <div class="by"><span><i>Author</i>Anne Goldsmith</span><span><i>Volumes</i>Three, 1990–2010</span><span id="tot"><i>Recipes</i>—</span></div>
+</div></section>
+
+<section class="wrap" id="index">
+ <div class="ctrl grid12">
+  <div class="fl"><div class="lab">Volume</div><div class="opts" id="fVol"></div></div>
+  <div class="fl"><div class="lab">Cuisine</div><div class="opts" id="fCui"></div></div>
+  <div class="fl"><div class="lab">Dish</div><div class="opts" id="fType"></div></div>
+  <div class="bar">
+   <label class="q"><span class="lab">Search</span><input id="q" type="search" placeholder="an ingredient, a name, a note" autocomplete="off"></label>
+   <span class="cnt" id="cnt"></span><button class="clr" id="clear">Clear</button>
+   <div class="views" role="group" aria-label="View"><button id="vList" aria-pressed="true">Index</button><button id="vGrid" aria-pressed="false">Grid</button></div>
+  </div>
+ </div>
+ <div class="idx" id="out"></div>
+</section>
+
+<section class="about wrap" id="about"><div class="grid12">
+ <h2>About the books</h2><div class="tx" id="aboutTx"></div>
+</div></section>
+<footer class="wrap"><div class="grid12"><span>Copyright Anne Goldsmith 1990 · 2000–2010</span><span class="r"><button id="toTop">Back to top</button></span></div></footer>
+
+<div class="page" id="page" role="dialog" aria-modal="true" aria-labelledby="ptitle"></div>
+<div class="cook" id="cook" role="dialog" aria-modal="true" aria-label="Cooking mode">
+ <div class="ctop"><b id="cTitle"></b><button id="cSm" aria-label="Smaller text">A−</button><button id="cLg" aria-label="Larger text">A+</button><button id="cClose">Close</button></div>
+ <div class="prog"><i id="cProg"></i></div>
+ <div class="track" id="track"></div>
+ <div class="cnav"><button id="cPrev">← Back</button><span id="cPos"></span><button id="cNext">Next →</button></div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ROM={1:'I',2:'II',3:'III'},YEARS={1:'1990',2:'2000–2010',3:'After 2010'};
+const VOLS={1:'Volume I',2:'Volume II',3:'Volume III'};
+const TYPES=['Appetizers','Soups','Salads','Dressings','Vegetables & Sides','Pasta & Rice','Poultry','Meat','Fish & Seafood','Eggs & Other Mains','Sauces & Marinades','Breads & Biscuits','Pies','Cakes & Tortes','Cookies & Bars','Desserts & Puddings','Garnishes','Kitchen Notes'];
+const CUIS=['Italian','American','French','Jewish & Eastern European','Asian','Middle Eastern & Mediterranean','Latin American','Indian','Kitchen Basics'];
+let R=[],byId={},st={vol:null,type:null,cui:null,q:''},view='list',cur=null,shown=[],toastT;
+const toast=m=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),1800)};
+const reduce=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
+const vt=fn=>{if(document.startViewTransition&&!reduce())return document.startViewTransition(fn);fn();return null};
+const secLabel=r=>r.section.toLowerCase().replace(/(^|\s|\/)\S/g,c=>c.toUpperCase()).replace(/'S\b/,"'s");
+const blockText=b=>b.k==='row'?b.ing.join(' ')+' '+b.txt:b.k==='ing'?b.items.join(' '):b.k==='table'?b.rows.flat().join(' '):(b.label||'')+' '+(b.txt||'');
+const pad=n=>String(n).padStart(3,'0');
+
+function match(r,skip){
+ if(skip!=='vol'&&st.vol&&r.vol!==st.vol)return false;
+ if(skip!=='type'&&st.type&&r.type!==st.type)return false;
+ if(skip!=='cui'&&st.cui&&r.cuisine!==st.cui)return false;
+ if(st.q)return st.q.split(/\s+/).every(w=>r._s.includes(w));
+ return true;
+}
+function opts(el,key,vals,label){
+ const c={};R.forEach(r=>{if(match(r,key)){const v=key==='vol'?r.vol:key==='type'?r.type:r.cuisine;c[v]=(c[v]||0)+1}});
+ el.innerHTML=`<button class="opt" data-k="${key}" data-v="" aria-pressed="${!st[key]}">All</button>`+vals.map(v=>`<button class="opt" data-k="${key}" data-v="${esc(v)}" aria-pressed="${st[key]==v}" ${c[v]?'':'disabled'}>${esc(label?label(v):v)}<sup>${c[v]||0}</sup></button>`).join('');
+}
+function excerpt(r){const b=r.blocks.find(b=>b.k==='q')||r.blocks.find(b=>b.k==='row'||b.k==='p'||b.k==='ing'||b.k==='i');return b?blockText(b).trim():''}
+function renderOut(animate){
+ shown=R.filter(r=>match(r));
+ $('#cnt').textContent=`${shown.length} of ${R.length}`;
+ $('#clear').style.visibility=(st.vol||st.type||st.cui||st.q)?'visible':'hidden';
+ const o=$('#out');
+ if(!shown.length){o.innerHTML='<div class="empty">Nothing in the books matches that. Try another word or fewer filters.</div>';return}
+ let k=0;const an=i=>animate&&i<28?` reveal" style="animation-delay:${i*28}ms`:'';
+ if(view==='list'){
+  const groups=[1,2,3].map(v=>[v,shown.filter(r=>r.vol===v)]).filter(g=>g[1].length);
+  o.innerHTML=groups.map(([v,rs])=>`<div class="vh"><h2>${VOLS[v]}</h2><span>${YEARS[v]} · ${rs.length} recipes</span></div><div class="list">`+
+   rs.map(r=>`<button class="row${an(k++)}" data-id="${r.id}"><span class="n">${pad(r.n)}</span><span class="t">${r.star?'★ ':''}${esc(r.title)}</span><span class="d">${esc(r.type)}</span><span class="c">${esc(r.cuisine)}</span><span class="s">${esc(r.attr.replace(/^\(|\)$/g,''))}</span></button>`).join('')+'</div>').join('');
+ }else{
+  // rhythm: wide card every 7th, tall card every 5th — an index that breathes
+  o.innerHTML=`<div class="cards">`+shown.map((r,i)=>{const w=i%7===0,t=!w&&i%5===2;
+   return `<button class="card${w?' w':''}${t?' t':''}${an(i)}" data-id="${r.id}"><span class="n"><span>${pad(r.n)}</span><span>Vol. ${ROM[r.vol]}</span></span><span class="t">${esc(r.title)}</span><span class="x">${esc(excerpt(r))}</span><span class="m">${esc(r.type)} · ${esc(r.cuisine)}</span></button>`}).join('')+`</div>`;
+ }
+}
+function render(animate=true){
+ opts($('#fVol'),'vol',[1,2,3],v=>`${VOLS[v]}`);opts($('#fCui'),'cui',CUIS);opts($('#fType'),'type',TYPES);
+ renderOut(animate);
+}
+
+/* recipe page */
+function groups(r){const g=[];for(const b of r.blocks){const l=g[g.length-1];
+ if(b.k==='row'){if(l&&l.k==='rows')l.items.push(b);else g.push({k:'rows',items:[b]})}
+ else if(b.k==='i'){if(l&&l.k==='ilist')l.items.push(b.txt);else g.push({k:'ilist',items:[b.txt]})}
+ else g.push(b)}return g}
+function bodyHTML(r){let n=0;return groups(r).map(b=>{switch(b.k){
+ case 'rows':return `<div class="steps">${b.items.map(x=>`<div class="step"><i>${String(++n).padStart(2,'0')}</i><ul>${x.ing.map(i=>`<li>${esc(i)}</li>`).join('')}</ul><div>${esc(x.txt)}</div></div>`).join('')}</div>`;
+ case 'ing':case 'ilist':return `<ul class="ings">${b.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`;
+ case 'table':return `<div class="tbl"><table>${b.rows.map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`;
+ case 'q':return `<p class="q">${esc(b.txt)}</p>`;
+ case 'h':return `<h3>${esc(b.txt.replace(/:$/,''))}</h3>`;
+ case 'note':return `<p class="note"><b>${esc(b.label)}</b>${esc(b.txt)}</p>`;
+ default:return /^[\s.,;:'"’-]*$/.test(b.txt)?'':`<p>${esc(b.txt)}</p>`}}).join('')}
+function neighbours(r){const list=shown.length&&shown.includes(r)?shown:R;const i=list.indexOf(r);return [list[i-1],list[i+1]]}
+function pageHTML(r){const [p,nx]=neighbours(r);
+ return `<div class="ptop wrap"><div class="grid12"><button class="bk" id="pBack">← Index</button><span class="bc">Vol. ${ROM[r.vol]} / ${esc(secLabel(r))}</span>
+  <span class="pn"><button id="pPrev" ${p?'':'disabled'} aria-label="Previous recipe">Prev</button><button id="pNext" ${nx?'':'disabled'} aria-label="Next recipe">Next</button></span></div></div>
+ <div class="spread wrap grid12">
+  <aside class="side"><dl>
+   <div><dt>Volume</dt><dd>${VOLS[r.vol]}, ${YEARS[r.vol]}</dd></div><div><dt>Chapter</dt><dd>${esc(secLabel(r))}</dd></div>
+   <div><dt>Dish</dt><dd>${esc(r.type)}</dd></div><div><dt>Cuisine</dt><dd>${esc(r.cuisine)}</dd></div>
+   ${r.attr?`<div><dt>Source</dt><dd>${esc(r.attr.replace(/^\(|\)$/g,''))}</dd></div>`:''}${r.nettie?`<div><dt>From</dt><dd>Nettie’s handwritten recipes${r.star?' ★':''}</dd></div>`:''}
+  </dl><div class="acts"><button class="act pri" id="bCook">Cooking mode <span>→</span></button><button class="act" id="bPdf">Print, 8.5 × 11 <span>PDF</span></button><button class="act" id="bLink">Copy link <span>↗</span></button></div></aside>
+  <div class="main"><h1 id="ptitle" style="view-transition-name:rtitle">${esc(r.title)}</h1>${r.attr?`<div class="attr">${esc(r.attr)}</div>`:''}
+   <div class="body">${bodyHTML(r)}</div>
+   <div class="end">${p?`<button data-go="${p.id}">Previous<b>${esc(p.title)}</b></button>`:'<span></span>'}${nx?`<button data-go="${nx.id}">Next<b>${esc(nx.title)}</b></button>`:'<span></span>'}</div>
+  </div></div>`}
+function open(id,from){
+ const r=byId[id];if(!r)return;
+ const src=from&&from.querySelector('.t');if(src)src.style.viewTransitionName='rtitle';
+ const t=vt(()=>{if(src)src.style.viewTransitionName='';cur=r;const pg=$('#page');pg.innerHTML=pageHTML(r);pg.classList.add('on');pg.scrollTop=0;document.body.style.overflow='hidden';bind(r)});
+ if(location.hash!=='#'+id)history.replaceState(null,'','#'+id);
+}
+function close(){
+ if(!cur)return;const id=cur.id;const tgt=document.querySelector(`[data-id="${id}"] .t`);
+ vt(()=>{$('#page').classList.remove('on');$('#page').innerHTML='';document.body.style.overflow='';cur=null;if(tgt){tgt.style.viewTransitionName='rtitle';tgt.scrollIntoView({block:'center'})}})?.finished.then(()=>{if(tgt)tgt.style.viewTransitionName=''});
+ history.replaceState(null,'',location.pathname+location.search);
+}
+function swap(id){const r=byId[id];if(!r)return;vt(()=>{cur=r;$('#page').innerHTML=pageHTML(r);$('#page').scrollTop=0;bind(r)});history.replaceState(null,'','#'+id)}
+function bind(r){
+ const [p,nx]=neighbours(r);
+ $('#pBack').onclick=close;$('#pPrev').onclick=()=>p&&swap(p.id);$('#pNext').onclick=()=>nx&&swap(nx.id);
+ $('#page').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>swap(b.dataset.go));
+ $('#bCook').onclick=()=>cook(r);$('#bPdf').onclick=()=>pdf(r);
+ $('#bLink').onclick=async()=>{try{await navigator.clipboard.writeText(location.href.split('#')[0]+'#'+r.id);toast('Link copied')}catch(e){toast('Copying isn’t allowed here')}};
+}
+
+/* cooking mode */
+let cs=1,slides=[],wake=null;
+function cookSlides(r){const intro=[],ings=[],steps=[],notes=[];let label='',g=null;
+ const add=items=>{if(!g||g.label!==label){g={label,items:[]};ings.push(g)}g.items.push(...items)};
+ for(const b of r.blocks){
+  if(b.k==='q')intro.push(b.txt);else if(b.k==='h'){label=b.txt.replace(/:$/,'');g=null}
+  else if(b.k==='note')notes.push(b);else if(b.k==='ing')add(b.items);else if(b.k==='i')add([b.txt]);
+  else if(b.k==='row'){steps.push({label,ing:b.ing,txt:b.txt});add(b.ing)}
+  else if(b.k==='table')steps.push({label,table:b.rows});else if(!/^[\s.,;:'"’-]*$/.test(b.txt))steps.push({label,txt:b.txt})}
+ return [{kind:'start',intro,ings:ings.filter(x=>x.items.length)},...steps.map((x,i)=>({kind:'step',n:i+1,of:steps.length,...x})),...(notes.length?[{kind:'notes',notes}]:[])]}
+function slideHTML(x){
+ if(x.kind==='start')return `<div class="sl">Before you start</div>${x.intro.map(t=>`<p class="cq">${esc(t)}</p>`).join('')}${x.ings.length?x.ings.map(g=>`${g.label?`<div class="sl">${esc(g.label)}</div>`:''}<ul class="ci check">${g.items.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`).join(''):'<p class="cq">No separate ingredient list in this one. Follow the steps.</p>'}`;
+ if(x.kind==='notes')return `<div class="sl">Notes</div>${x.notes.map(n=>`<p class="ct" style="font-size:calc(clamp(20px,2.4vw,30px) * var(--cs,1))">${esc(n.label)}: ${esc(n.txt)}</p>`).join('')}`;
+ return `<div class="sl">Step ${x.n} of ${x.of}${x.label?' · '+esc(x.label):''}</div>${x.ing&&x.ing.length?`<ul class="ci">${x.ing.map(i=>`<li>${esc(i)}</li>`).join('')}</ul>`:''}${x.txt?`<p class="ct">${esc(x.txt)}</p>`:''}${x.table?`<div class="tbl"><table>${x.table.map(row=>`<tr>${row.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div>`:''}`}
+function cook(r){slides=cookSlides(r);$('#cTitle').textContent=r.title;
+ $('#track').innerHTML=slides.map(x=>`<section class="slide">${slideHTML(x)}</section>`).join('');
+ $('#track').querySelectorAll('.check li').forEach(li=>li.onclick=()=>li.classList.toggle('done'));
+ $('#cook').classList.add('on');$('#track').scrollLeft=0;pos();
+ try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{})}catch(e){}
+ $('#cNext').focus()}
+const idx=()=>{const t=$('#track');return Math.round(t.scrollLeft/Math.max(1,t.clientWidth))};
+const go=i=>{const t=$('#track');i=Math.max(0,Math.min(slides.length-1,i));t.children[i]&&t.children[i].scrollIntoView({inline:'start',block:'nearest'})};
+function pos(){const i=idx(),n=slides.length;$('#cPos').textContent=`${String(i+1).padStart(2,'0')} / ${String(n).padStart(2,'0')}`;$('#cProg').style.width=((i+1)/n*100)+'%';$('#cPrev').disabled=i===0;$('#cNext').textContent=i>=n-1?'Done':'Next →'}
+function closeCook(){$('#cook').classList.remove('on');try{wake&&wake.release()}catch(e){}wake=null}
+$('#track').addEventListener('scroll',()=>requestAnimationFrame(pos));
+$('#cPrev').onclick=()=>go(idx()-1);$('#cNext').onclick=()=>{const i=idx();i>=slides.length-1?closeCook():go(i+1)};
+$('#cClose').onclick=closeCook;
+$('#cSm').onclick=()=>{cs=Math.max(.8,cs-.12);$('#cook').style.setProperty('--cs',cs)};
+$('#cLg').onclick=()=>{cs=Math.min(1.7,cs+.12);$('#cook').style.setProperty('--cs',cs)};
+document.addEventListener('keydown',e=>{
+ if($('#cook').classList.contains('on')){if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(idx()+1)}else if(e.key==='ArrowLeft'){e.preventDefault();go(idx()-1)}else if(e.key==='Escape')closeCook();return}
+ if(cur){if(e.key==='Escape')close();else if(e.key==='ArrowRight'){const n=neighbours(cur)[1];n&&swap(n.id)}else if(e.key==='ArrowLeft'){const p=neighbours(cur)[0];p&&swap(p.id)}}});
+window.addEventListener('resize',()=>{if($('#cook').classList.contains('on'))pos()});
+
+/* 8.5 x 11 pdf */
+const PM={'⅓':'1/3','⅔':'2/3','⅛':'1/8','⅜':'3/8','⅝':'5/8','⅞':'7/8','—':'-','–':'-','’':"'",'‘':"'",'“':'"','”':'"','…':'...','⁄':'/','•':'-','★':'*'};
+const pt=s=>String(s).replace(/[⅓⅔⅛⅜⅝⅞—–’‘“”…⁄•★]/g,c=>PM[c]).replace(/[^\x00-\xff]/g,'');
+let dl;
+async function pdf(r){
+ if(!window.jspdf){toast('The PDF tool didn’t load. Try again in a moment.');return}
+ const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'pt',format:'letter'});
+ const M=58,W=612-2*M,BOT=792-62;let y=M;
+ const foot=()=>{doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(140);doc.text(pt(`Recipes by Request — ${VOLS[r.vol]}, ${secLabel(r)}`),M,792-34);doc.text(String(doc.getNumberOfPages()),612-M,792-34,{align:'right'});doc.setTextColor(20)};
+ const need=h=>{if(y+h>BOT){foot();doc.addPage();y=M}};
+ const lines=(t,w,s,st)=>{doc.setFont('helvetica',st||'normal');doc.setFontSize(s);return doc.splitTextToSize(pt(t),w)};
+ const para=(t,s=10.5,st='normal',ind=0,gap=7,col=20)=>{const ls=lines(t,W-ind,s,st),lh=s*1.42;for(const l of ls){need(lh);doc.setFont('helvetica',st);doc.setFontSize(s);doc.setTextColor(col);doc.text(l,M+ind,y+s);y+=lh}y+=gap;doc.setTextColor(20)};
+ para(`${VOLS[r.vol]}  /  ${secLabel(r)}  /  ${r.type}  /  ${r.cuisine}`,8,'normal',0,14,140);
+ para(r.title,22,'normal',0,4);
+ if(r.attr)para(r.attr,9.5,'normal',0,4,120);
+ y+=10;doc.setDrawColor(20);doc.setLineWidth(.6);doc.line(M,y,M+W,y);y+=14;
+ const LW=176,RX=M+LW+22,RW=W-LW-22;
+ for(const b of groups(r)){
+  if(b.k==='rows'){for(const x of b.items){const L=lines(x.ing.join('\n'),LW,9.5),Rr=lines(x.txt,RW,10.5),h=Math.max(L.length*13.5,Rr.length*14.9)+10;
+   need(h);doc.setFont('helvetica','normal');doc.setFontSize(9.5);L.forEach((l,i)=>doc.text(l,M,y+9.5+i*13.5));doc.setFontSize(10.5);Rr.forEach((l,i)=>doc.text(l,RX,y+10.5+i*14.9));
+   y+=h;doc.setDrawColor(215);doc.setLineWidth(.4);doc.line(M,y-5,M+W,y-5);y+=4}y+=8}
+  else if(b.k==='ing'||b.k==='ilist'){const it=b.items,two=it.length>6,cw=two?(W-22)/2:W,h2=two?Math.ceil(it.length/2):it.length;
+   const A=it.slice(0,h2).flatMap(i=>lines(i,cw,10)),B=it.slice(h2).flatMap(i=>lines(i,cw,10));
+   for(let i=0;i<Math.max(A.length,B.length);i++){need(14.5);doc.setFont('helvetica','normal');doc.setFontSize(10);if(A[i])doc.text(A[i],M,y+10);if(B[i])doc.text(B[i],M+cw+22,y+10);y+=14.5}y+=10}
+  else if(b.k==='table'){const nc=Math.max(...b.rows.map(x=>x.length)),cw=W/nc;for(const [ri,row] of b.rows.entries()){const cl=row.map(c=>lines(c,cw-10,9));const h=Math.max(...cl.map(c=>c.length))*12.6+8;need(h);doc.setTextColor(ri?20:130);cl.forEach((c,ci)=>c.forEach((l,li)=>doc.text(l,M+ci*cw,y+9+li*12.6)));y+=h;doc.setDrawColor(215);doc.line(M,y-4,M+W,y-4)}doc.setTextColor(20);y+=8}
+  else if(b.k==='q')para(b.txt,11,'italic',0,12);
+  else if(b.k==='h'){y+=6;para(b.txt.replace(/:$/,''),8.5,'normal',0,4,130)}
+  else if(b.k==='note')para(`${b.label}: ${b.txt}`,9.5,'normal',14,8,90);
+  else para(b.txt);
+ }
+ foot();
+ const name=r.title.replace(/[^\w]+/g,' ').trim().replace(/ +/g,'-').toLowerCase()+'.pdf',blob=doc.output('blob');
+ if(dl===undefined){try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){dl=null}}
+ if(dl){try{await dl.save({filename:name,data:blob});toast('PDF saved')}catch(e){toast('The download was cancelled')}return}
+ try{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();toast('PDF ready')}catch(e){toast('Saving isn’t allowed here')}
+}
+
+/* events */
+document.addEventListener('click',e=>{
+ const o=e.target.closest('.opt');if(o&&!o.disabled){const k=o.dataset.k;let v=o.dataset.v;v=v===''?null:(k==='vol'?+v:v);st[k]=st[k]===v?null:v;vt(()=>render(false));return}
+ const it=e.target.closest('.row,.card');if(it)open(it.dataset.id,it);
+});
+const setView=v=>{view=v;$('#vList').setAttribute('aria-pressed',v==='list');$('#vGrid').setAttribute('aria-pressed',v==='grid');vt(()=>renderOut(true))};
+$('#vList').onclick=()=>setView('list');$('#vGrid').onclick=()=>setView('grid');
+let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value.trim().toLowerCase();render(false)},140)});
+$('#clear').onclick=()=>{st={vol:null,type:null,cui:null,q:''};$('#q').value='';vt(()=>render(false))};
+const toIndex=()=>{if(cur)close();setTimeout(()=>$('#index').scrollIntoView({behavior:reduce()?'auto':'smooth'}),cur?600:0)};
+$('#nIdx').onclick=toIndex;$('#home').onclick=()=>{if(cur)close();window.scrollTo({top:0,behavior:reduce()?'auto':'smooth'})};
+$('#nVol').onclick=()=>{st.vol=st.vol?(st.vol%3)+1:1;vt(()=>render(false));toIndex()};
+$('#nAbout').onclick=()=>{if(cur)close();setTimeout(()=>$('#about').scrollIntoView({behavior:reduce()?'auto':'smooth'}),cur?600:0)};
+$('#toTop').onclick=()=>window.scrollTo({top:0,behavior:reduce()?'auto':'smooth'});
+window.addEventListener('hashchange',()=>{const h=location.hash.slice(1);if(h&&byId[h]&&(!cur||cur.id!==h))cur?swap(h):open(h)});
+
+fetch('data.json').then(r=>r.json()).then(d=>{
+ R=d;const per={1:0,2:0,3:0};
+ R.forEach(r=>{byId[r.id]=r;r.n=++per[r.vol];r._s=(r.title+' '+r.attr+' '+r.section+' '+r.type+' '+r.cuisine+' '+r.blocks.map(blockText).join(' ')).toLowerCase()});
+ $('#tot').innerHTML=`<i>Recipes</i>${R.length}, word for word`;
+ const intro=byId['v1-introduction'],nettie=R.find(r=>r.title==="About Nettie's Recipes");
+ $('#aboutTx').innerHTML=(intro?intro.blocks.map(b=>`<p>${esc(b.txt)}</p>`).join(''):'')+(nettie?`<p class="lab" style="font-size:13px;margin-top:40px">Nettie’s recipes, Volume I</p><p>${esc(nettie.blocks[0].txt)}</p>`:'');
+ render(true);
+ const h=location.hash.slice(1);if(h&&byId[h])open(h);
+}).catch(()=>{$('#out').innerHTML='<div class="empty">The recipes couldn’t load. Reload the page to try again.</div>'});
+}
+</script>
+</body>
+</html>
